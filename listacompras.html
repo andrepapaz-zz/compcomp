@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="listacomprasModel">
+<head>
+    <link rel="apple-touch-icon" sizes="57x57" href="img/apple-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="img/apple-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="img/apple-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="img/apple-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="img/apple-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="img/apple-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="img/apple-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="img/apple-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="img/apple-icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="192x192"  href="img/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="img/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="img/favicon-16x16.png">
+    <link rel="manifest" href="img/manifest.json">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="msapplication-TileImage" content="img/ms-icon-144x144.png">
+    <meta name="theme-color" content="#ffffff">
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Comp Comp</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/theme.css" rel="stylesheet">
+    <script src="js/angular.min.js"></script>
+    <script src="js/angular-locale_pt-br.js"></script>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/listacompras.js"></script>
+    <script src="js/tooltip.js"></script>
+</head>
+<body class="docmument" ng-controller="listacomprasController">
+
+<div class="container">
+    <div class="search" ng-show="!edditing">
+        <br>
+        <div class="">
+            <form class="form-inline">
+                <label for="inputSearch">Busca:</label>
+                <input ng-model="query" type="text" class="form-control" id="inputSearch" placeholder="Busca">
+            </form>
+        </div>
+        <br>
+        <table class="table table-bordered table-hover">
+            <thead>
+            <tr>
+                <th class="col-xs-1 col-md-1">Id</th>
+                <th class="col-xs-6 col-md-6">Nome</th>
+                <th class="col-xs-3 col-md-3">Supermercado</th>
+                <th class="col-xs-1 col-md-1">Mês/Ano</th>
+                <th class="col-xs-1 col-md-1">Ações</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="listacomprasTabela in listacompras | filter:query">
+                <th scope="row">{{listacomprasTabela.id}}</th>
+                <td>{{listacomprasTabela.nome}}</td>
+                <td>{{listacomprasTabela.supermercado.nome}}</td>
+                <td>{{listacomprasTabela.mes.id + 1 | numberFixedLen:2}}/{{listacomprasTabela.ano}}</td>
+                <td>
+                    <button ng-click="selecionaListacompras(listacomprasTabela);" type="button" class="btn btn-xs"
+                            aria-label="Left Align">
+                        <a href="#" rel="tooltip" data-placement="left" title="Editar"><span
+                                class="glyphicon glyphicon-edit" aria-hidden="true"></span></a>
+                    </button>
+                    <button ng-click="deletar(listacomprasTabela);" type="button" class="btn btn-xs" aria-label="Left Align">
+                        <a href="#" rel="tooltip" data-placement="left" title="Excluir"><span
+                                class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
+                    </button>
+                </td>
+            </tbody>
+        </table>
+        <div class="row-fluid">
+            <a ng-click="novo();" role="button" class="btn btn-primary">Novo</a>
+            <a href="index.html" role="button" class="btn btn-danger pull-right">Sair</a>
+        </div>
+    </div>
+    <div class="register" ng-show="edditing">
+        <br>
+        <form name="mainForm" class="form-horizontal col-md-12" role="form" ng-submit="incluir(listacompras)" novalidate>
+            <div class="form-group">
+                <legend>Lista de compras</legend>
+            </div>
+            
+            <div class="row">
+                <div class="col-sm-1">
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            <label for="inputCodigo">Código</label>
+                            <input type="text" name="Codigo" id="inputCodigo" ng-model="listacompras.id" class="form-control"
+                                   disabled>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="col-sm-12">
+                        <div class="form-group" ng-class="{ 'has-error' : mainForm.descricao.$invalid && !mainForm.descricao.$pristine }">
+                            <label for="exampleInputName2">Nome</label>
+                            <input type="text" name="descricao" class="form-control" id="exampleInputName2" ng-model="listacompras.nome"
+                                   placeholder="Nome da Lista de compras" required>
+                            <p ng-show="mainForm.descricao.$invalid && !mainForm.descricao.$pristine" class="help-block">Não é permitido campo nome em branco</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="col-sm-12">
+                        <div class="form-group" ng-class="{ 'has-error' : mainForm.supermercado.$dirty && mainForm.supermercado.$invalid }">
+                            <label for="inputSupermercado">Supermercado</label>
+                            <select name="supermercado" class="form-control" id="inputSupermercado"
+                                    ng-model="listacompras.supermercado"
+                                    ng-options="supermercado.nome for supermercado in supermercados track by supermercado.id" required>
+                                <option value="">Selecione a Supermercado</option>
+                            </select>
+                            <p ng-show="mainForm.supermercado.$dirty && mainForm.supermercado.$invalid" class="help-block">Não é permitido campo supermercado sem seleção</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="col-sm-12">
+                        <div class="form-group" ng-class="{ 'has-error' : mainForm.mes.$dirty && mainForm.mes.$invalid }">
+                            <label for="inputMes">Mês</label>
+                            <select name="mes" class="form-control" id="inputMes"
+                                    ng-model="listacompras.mes"
+                                    ng-options="mes.nome for mes in meses track by mes.id" required>
+                                <option value="">Selecione o Mês</option>
+                            </select>
+                            <p ng-show="mainForm.mes.$dirty && mainForm.mes.$invalid" class="help-block">Não é permitido campo mes sem seleção</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-1">
+                    <div class="col-sm-12">
+                        <div class="form-group" ng-class="{ 'has-error' : mainForm.descricao.$invalid && !mainForm.descricao.$pristine }">
+                            <label for="exampleInputAno2">Ano</label>
+                            <input type="text" name="descricao" class="form-control" id="exampleInputAno2" ng-model="listacompras.ano"
+                                   placeholder="Ano" required>
+                            <p ng-show="mainForm.descricao.$invalid && !mainForm.descricao.$pristine" class="help-block">Não é permitido campo ano em branco</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="panel panel-default">
+                    <div class="panel-heading">Itens da Compra</div>
+                    <div class="table-responsive">
+                        <table class="table-itens table table-bordered table-sm table-hover">
+                            <thead>
+                            <tr>
+                                <th class="col-xs-1 col-md-1">Código</th>
+                                <th class="col-xs-1 col-md-6">Produto</th>
+                                <th class="col-xs-1 col-md-1">Quantidade</th>
+                                <th class="col-xs-1 col-md-1">Preço</th>
+                                <th class="col-xs-1 col-md-2">Total</th>
+                                <th class="col-xs-1 col-md-1">Ações</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-repeat="item in listacompras.itens">
+                                <th scope="row">
+                                    <span ng-show="!(edditingItem && edittingLine=={{$index}})">{{item.id}}</span>
+                                    <input ng-show="edditingItem && edittingLine=={{$index}}" type="text" name="Codigo" id="inputItemCodigo" ng-model="item.id" class="form-control input-sm" disabled />
+                                </th>
+                                <td ng-class="{ 'has-error' : mainForm.produto{{$index}}.$dirty && mainForm.produto{{$index}}.$invalid }">
+                                    <span ng-show="!(edditingItem && edittingLine=={{$index}})">{{item.produto.nome}}</span>
+                                    <select name="produto{{$index}}" ng-show="edditingItem && edittingLine=={{$index}}" class="form-control input-sm" id="inputItemProduto"
+                                            ng-model="item.produto"
+                                            ng-options="produto.nome for produto in produtos track by produto.id" ng-required="edditingItem && edittingLine=={{$index}}">
+                                        <option value="">Selecione um Produto</option>
+                                    </select>
+                                </td>
+                                <td class="text-right" ng-class="{ 'has-error' : mainForm.qtd{{$index}}.$invalid && !mainForm.qtd{{$index}}.$pristine }" >
+                                    <span ng-show="!(edditingItem && edittingLine=={{$index}})">{{item.quantidade}}</span>
+                                    <input name="qtd{{$index}}" ng-show="edditingItem && edittingLine=={{$index}}" type="number" ng-model="item.quantidade" class="form-control input-sm" id="inputItemQuantidade" ng-required="edditingItem && edittingLine=={{$index}}" />
+                                </td>
+                                <td class="text-right" ng-class="{ 'has-error' : mainForm.valor{{$index}}.$invalid && !mainForm.valor{{$index}}.$pristine }">
+                                    <span ng-show="!(edditingItem && edittingLine=={{$index}})">{{item.preco | currency:'R$ '}}</span>
+                                    <input name="valor{{$index}}" ng-show="edditingItem && edittingLine=={{$index}}" type="number" ng-model="item.preco" class="form-control currency input-sm" id="inputItemValor" ng-required="edditingItem && edittingLine=={{$index}}" />
+                                </td>
+                                <td class="text-right">
+                                    <span ng-show="!(edditingItem && edittingLine=={{$index}})">{{item.quantidade * item.preco | currency:'R$ '}}</span>
+                                    <input ng-show="edditingItem && edittingLine=={{$index}}" type="number" ng-model="item.total" class="form-control input-sm" id="inputItemTotal" disabled />
+                                </td>
+                                <td>
+                                    <button ng-disabled="mainForm.$invalid && edditingItem && edittingLine=={{$index}}" ng-click="alterLine($index, item);" type="button" class="btn btn-xs" aria-label="Left Align">
+                                        <a href="" rel="tooltip" data-placement="left" title="Alterar"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></a>
+                                    </button>
+                                    <button ng-click="cancelLine(item);" type="button" class="btn btn-xs" aria-label="Left Align">
+                                        <a href="" rel="tooltip" data-placement="left" title="Excluir"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr class="editItem" ng-show="bnewLine">
+                                <th scope="row">
+                                    <input type="text" name="Codigo" id="inputItemCodigoN" ng-model="item.id" class="form-control input-sm" disabled />
+                                </th>
+                                <td ng-class="{ 'has-error' : mainForm.produto.$dirty && mainForm.produto.$invalid }">
+                                    <select name="produto" class="form-control input-sm" id="inputItemProdutoN"
+                                            ng-model="item.produto"
+                                            ng-options="produto.nome for produto in produtos track by produto.id" ng-required="bnewLine">
+                                        <option value="">Selecione um Produto</option>
+                                    </select>
+                                </td>
+                                <td class="text-right" ng-class="{ 'has-error' : mainForm.qtd.$invalid && !mainForm.qtd.$pristine }">
+                                    <input name="qtd" type="number" ng-model="item.quantidade" class="form-control input-sm" id="inputItemQuantidadeN" ng-required="bnewLine" />
+                                </td>
+                                <td class="text-right" ng-class="{ 'has-error' : mainForm.valor.$invalid && !mainForm.valor.$pristine }">
+                                    <input name="valor" type="number" ng-model="item.preco" class="form-control currency input-sm" id="inputItemValorN" ng-required="bnewLine" />
+                                </td>
+                                <td class="text-right">
+                                    <input type="number" ng-model="item.total" class="form-control input-sm" id="inputItemTotalN" disabled />
+                                </td>
+                                <td>
+                                    <button ng-disabled="mainForm.$invalid && bnewLine" ng-click="saveNewLine(item);" type="button" class="btn btn-xs" aria-label="Left Align">
+                                        <a href="#" rel="tooltip" data-placement="left" title="Inserir"><span class="glyphicon glyphicon-floppy-saved" aria-hidden="true"></span></a>
+                                    </button>
+                                    <button ng-click="cancelNewLine($index, item);" type="button" class="btn btn-xs" aria-label="Left Align">
+                                        <a href="#" rel="tooltip" data-placement="left" title="Cancelar"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
+                                    </button>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <button ng-click="newLine();" ng-disabled="bnewLine" type="button" class="btn pull-right" aria-label="Left Align">
+                            <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-2 pull-right">
+                    <div class="form-group">
+                        <label for="inputValorNF">Valor da Compra</label>
+                        <div class="input-group">
+                            <span class="input-group-addon">$</span>
+                            <span id="inputValorNF" ng-model="listacompras.valor" class="form-control" disabled>{{getTotalCompra() | currency:'R$ '}}</span>
+                            <!--<input type="number" ng-model="notaFiscal.valor" class="form-control" id="inputValorNF" disabled value="" />-->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="row-fluid">
+                    <button ng-disabled="mainForm.$invalid" type="submit" class="btn btn-primary">{{textSubmit}}
+                    </button>
+                    <a ng-click="cancel();" role="button" class="btn btn-danger pull-right">Cancelar</a>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal" id="myModal" role="dialog">
+        <div class="modal-dialog modal-sm">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Mensagem</h4>
+                </div>
+                <div class="modal-body">
+                    <p>{{errorMessage}}</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
